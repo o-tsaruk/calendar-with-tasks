@@ -1,0 +1,23 @@
+# Node & build artifacts
+node_modules
+dist
+build
+coverage
+.temp
+.next
+out
+
+# Lock files & cache
+.yarn/cache
+.pnpm-store
+*.log
+
+# Env & config
+.env*
+*.local
+
+# Generated files
+*.d.ts
+
+# Static assets
+public
