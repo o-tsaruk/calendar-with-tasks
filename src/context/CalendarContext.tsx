@@ -8,7 +8,7 @@ export interface CalendarContextType {
   currentCountryCode: string;
   availableCountries: Country[];
   holidayData: Record<number, PublicHoliday[]>;
-  
+
   setCurrentMonth: (month: number) => void;
   setCurrentYear: (year: number) => void;
   setCurrentCountryCode: (code: string) => void;
@@ -24,24 +24,27 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const now = new Date();
+  const initialCountry = {
+    countryCode: 'UA',
+    name: 'Ukraine',
+  };
 
   const [currentMonth, setCurrentMonth] = useState<number>(now.getMonth());
   const [currentYear, setCurrentYear] = useState<number>(now.getFullYear());
   const [currentCountryCode, setCurrentCountryCode] = useState<string>('UA');
-  const [availableCountries, setAvailableCountries] = useState<Country[]>([{
-    "countryCode": "UA",
-    "name": "Ukraine"
-  }]);
+  const [availableCountries, setAvailableCountries] = useState<Country[]>([
+    initialCountry,
+  ]);
   const [holidayData, setHolidayDataState] = useState<
     Record<number, PublicHoliday[]>
   >({});
 
   useEffect(() => {
-  fetch('https://date.nager.at/api/v3/AvailableCountries')
-    .then((res) => res.json())
-    .then((data) => setAvailableCountries(data))
-    .catch(console.error);
-}, []);
+    fetch('https://date.nager.at/api/v3/AvailableCountries')
+      .then((res) => res.json())
+      .then((data) => setAvailableCountries(data))
+      .catch(console.error);
+  }, []);
 
   const setHolidayData = (year: number, data: PublicHoliday[]) => {
     setHolidayDataState((prev) => ({ ...prev, [year]: data }));

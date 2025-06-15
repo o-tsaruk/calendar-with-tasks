@@ -10,17 +10,17 @@ const Grid = styled.div`
   padding: 8px;
 `;
 
-const Cell = styled.div<{ isToday?: boolean; isOutside?: boolean }>`
+const Cell = styled.div<{ $isToday?: boolean; $isOutside?: boolean }>`
   border: 1px solid #ddd;
   padding: 6px;
   min-height: 130px;
   font-size: 12px;
-  color: ${({ isOutside }) => (isOutside ? '#aaa' : 'black')};
-  background-color: ${({ isOutside }) => (isOutside ? '#fafafa' : 'white')};
+  color: ${({ $isOutside }) => ($isOutside ? '#aaa' : 'black')};
+  background-color: ${({ $isOutside }) => ($isOutside ? '#fafafa' : 'white')};
   border-radius: 6px;
 
-  ${({ isToday }) =>
-    isToday &&
+  ${({ $isToday }) =>
+    $isToday &&
     `
     border: 2px solid #0070f3;
     font-weight: bold;
@@ -91,13 +91,10 @@ export const Calendar = () => {
         {days.map((day) => (
           <Cell
             key={day.date}
-            isToday={day.date === today}
-            isOutside={day.isOutside}
+            $isToday={day.date === today}
+            $isOutside={day.isOutside}
           >
-            <div>
-              {day.dayOfMonth}
-            </div>
-            
+            <div>{day.dayOfMonth}</div>
           </Cell>
         ))}
       </Grid>
