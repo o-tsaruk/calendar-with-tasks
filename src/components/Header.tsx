@@ -18,7 +18,7 @@ const NavSection = styled.div`
   gap: 8px;
 `;
 
-const ArrowButton = styled.button<{ rotate?: boolean }>`
+const ArrowButton = styled.button<{ $rotate?: boolean }>`
   background: var(--bg-secondary);
   border: none;
   padding: 4px 8px;
@@ -28,7 +28,7 @@ const ArrowButton = styled.button<{ rotate?: boolean }>`
   img {
     width: 20px;
     height: 20px;
-    transform: ${({ rotate }) => (rotate ? 'rotate(180deg)' : 'none')};
+    transform: ${({ $rotate }) => ($rotate ? 'rotate(180deg)' : 'none')};
   }
 
   &:hover {
@@ -74,7 +74,7 @@ export const Header: React.FC<HeaderProps> = ({
   return (
     <HeaderWrapper>
       <NavSection>
-        <ArrowButton onClick={onPrev} rotate>
+        <ArrowButton onClick={onPrev} $rotate={true}>
           <img src='/arrow.svg' alt='Previous Month' />
         </ArrowButton>
         <ArrowButton onClick={onNext}>

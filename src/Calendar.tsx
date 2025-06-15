@@ -12,10 +12,9 @@ const Grid = styled.div`
 
 const Cell = styled.div<{ isToday?: boolean; isOutside?: boolean }>`
   border: 1px solid #ddd;
-  padding: 8px;
-  min-height: 80px;
-  text-align: center;
-  font-size: 14px;
+  padding: 6px;
+  min-height: 130px;
+  font-size: 12px;
   color: ${({ isOutside }) => (isOutside ? '#aaa' : 'black')};
   background-color: ${({ isOutside }) => (isOutside ? '#fafafa' : 'white')};
   border-radius: 6px;
@@ -95,7 +94,10 @@ export const Calendar = () => {
             isToday={day.date === today}
             isOutside={day.isOutside}
           >
-            {day.dayOfMonth}
+            <div>
+              {day.dayOfMonth}
+            </div>
+            
           </Cell>
         ))}
       </Grid>

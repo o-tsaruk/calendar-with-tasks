@@ -1,16 +1,18 @@
 // context/CalendarContext.tsx
-import React, { createContext, useContext, useState } from 'react';
-import type { PublicHoliday } from '../types';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import type { PublicHoliday, Country } from '../types';
 
 export interface CalendarContextType {
-  currentCountryCode: string;
-  currentYear: number;
   currentMonth: number;
+  currentYear: number;
+  currentCountryCode: string;
+  availableCountries: Country[];
   holidayData: Record<number, PublicHoliday[]>;
-
-  setCurrentCountryCode: (code: string) => void;
-  setCurrentYear: (year: number) => void;
+  
   setCurrentMonth: (month: number) => void;
+  setCurrentYear: (year: number) => void;
+  setCurrentCountryCode: (code: string) => void;
+  setAvailableCountries: (countries: Country[]) => void;
   setHolidayData: (year: number, data: PublicHoliday[]) => void;
 }
 
@@ -23,12 +25,23 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const now = new Date();
 
-  const [currentCountryCode, setCurrentCountryCode] = useState<string>('UA');
-  const [currentYear, setCurrentYear] = useState<number>(now.getFullYear());
   const [currentMonth, setCurrentMonth] = useState<number>(now.getMonth());
+  const [currentYear, setCurrentYear] = useState<number>(now.getFullYear());
+  const [currentCountryCode, setCurrentCountryCode] = useState<string>('UA');
+  const [availableCountries, setAvailableCountries] = useState<Country[]>([{
+    "countryCode": "UA",
+    "name": "Ukraine"
+  }]);
   const [holidayData, setHolidayDataState] = useState<
     Record<number, PublicHoliday[]>
   >({});
+
+  useEffect(() => {
+  fetch('https://date.nager.at/api/v3/AvailableCountries')
+    .then((res) => res.json())
+    .then((data) => setAvailableCountries(data))
+    .catch(console.error);
+}, []);
 
   const setHolidayData = (year: number, data: PublicHoliday[]) => {
     setHolidayDataState((prev) => ({ ...prev, [year]: data }));
@@ -37,13 +50,15 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({
   return (
     <CalendarContext.Provider
       value={{
-        currentCountryCode,
-        currentYear,
         currentMonth,
+        currentYear,
+        currentCountryCode,
+        availableCountries,
         holidayData,
-        setCurrentCountryCode,
-        setCurrentYear,
         setCurrentMonth,
+        setCurrentYear,
+        setCurrentCountryCode,
+        setAvailableCountries,
         setHolidayData,
       }}
     >
