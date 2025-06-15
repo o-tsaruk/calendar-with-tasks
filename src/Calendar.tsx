@@ -1,5 +1,7 @@
-import styled from "styled-components";
-import { getCalendarGridDays } from "./utils"; 
+import { useState } from 'react';
+import styled from 'styled-components';
+import { Header } from './components/Header';
+import { getCalendarGridDays } from './utils';
 
 const Grid = styled.div`
   display: grid;
@@ -14,8 +16,8 @@ const Cell = styled.div<{ isToday?: boolean; isOutside?: boolean }>`
   min-height: 80px;
   text-align: center;
   font-size: 14px;
-  color: ${({ isOutside }) => (isOutside ? "#aaa" : "black")};
-  background-color: ${({ isOutside }) => (isOutside ? "#fafafa" : "white")};
+  color: ${({ isOutside }) => (isOutside ? '#aaa' : 'black')};
+  background-color: ${({ isOutside }) => (isOutside ? '#fafafa' : 'white')};
   border-radius: 6px;
 
   ${({ isToday }) =>
@@ -34,20 +36,52 @@ const DayNamesRow = styled.div`
   margin-bottom: 4px;
 `;
 
-const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export const Calendar = () => {
   const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-  const today = now.toISOString().split("T")[0];
+  const [month, setMonth] = useState(now.getMonth());
+  const [year, setYear] = useState(now.getFullYear());
+  const today = now.toISOString().split('T')[0];
   const days = getCalendarGridDays(year, month);
+
+  const handleMonthChange = (direction: 'next' | 'prev') => {
+    let newMonth = month;
+    let newYear = year;
+
+    if (direction === 'next') {
+      if (month === 11) {
+        newMonth = 0;
+        newYear = year + 1;
+      } else {
+        newMonth = month + 1;
+      }
+    } else {
+      if (month === 0) {
+        newMonth = 11;
+        newYear = year - 1;
+      } else {
+        newMonth = month - 1;
+      }
+    }
+
+    setMonth(newMonth);
+    setYear(newYear);
+  };
+
+  const handleSearch = () => {
+    // todo
+  };
 
   return (
     <div>
-     <h2>
-        {now.toLocaleString("default", { month: "long" })} {year}
-      </h2>
+      <Header
+        month={month}
+        year={year}
+        onPrev={() => handleMonthChange('prev')}
+        onNext={() => handleMonthChange('next')}
+        onSearch={handleSearch}
+      />
       <DayNamesRow>
         {dayNames.map((d) => (
           <div key={d}>{d}</div>

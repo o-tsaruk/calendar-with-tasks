@@ -1,7 +1,7 @@
 export function getCalendarGridDays(year: number, month: number) {
   const currentMonthDays = new Date(year, month + 1, 0).getDate();
 
-  const firstDayOfMonth = new Date(year, month, 1).getDay(); 
+  const firstDayOfMonth = new Date(year, month, 1).getDay();
 
   const prevMonth = month === 0 ? 11 : month - 1;
   const prevYear = month === 0 ? year - 1 : year;
@@ -11,7 +11,7 @@ export function getCalendarGridDays(year: number, month: number) {
     const day = prevMonthDays - firstDayOfMonth + i + 1;
     const date = new Date(prevYear, prevMonth, day);
     return {
-      date: date.toISOString().split("T")[0],
+      date: date.toISOString().split('T')[0],
       dayOfWeek: date.getDay(),
       dayOfMonth: day,
       isOutside: true,
@@ -22,7 +22,7 @@ export function getCalendarGridDays(year: number, month: number) {
     const day = i + 1;
     const date = new Date(year, month, day);
     return {
-      date: date.toISOString().split("T")[0],
+      date: date.toISOString().split('T')[0],
       dayOfWeek: date.getDay(),
       dayOfMonth: day,
       isOutside: false,
@@ -42,7 +42,7 @@ export function getCalendarGridDays(year: number, month: number) {
     const day = i + 1;
     const date = new Date(nextYear, nextMonth, day);
     return {
-      date: date.toISOString().split("T")[0],
+      date: date.toISOString().split('T')[0],
       dayOfWeek: date.getDay(),
       dayOfMonth: day,
       isOutside: true,

@@ -8,6 +8,13 @@
   padding: 0;
 }
 
+:root {
+  --bg-primary: #fffefa;
+  --bg-secondary: #eeece7;
+  --text-primary: #0a0a08;
+  --border-primary: #868375;
+}
+
 html {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -17,8 +24,8 @@ body {
   font-family: 'Roboto', sans-serif;
   font-size: 14px;
   line-height: 1.5;
-  color: #0a0a08;
-  background-color: #fffefa;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
 }
 
 ul,
