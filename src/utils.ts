@@ -1,4 +1,4 @@
-export function getCalendarGridDays(year: number, month: number) {
+export function getCalendarGridDays(month: number, year: number) {
   const currentMonthDays = new Date(year, month + 1, 0).getDate();
 
   const firstDayOfMonth = new Date(year, month, 1).getDay();

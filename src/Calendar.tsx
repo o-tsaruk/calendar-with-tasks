@@ -1,6 +1,6 @@
-import { useState } from 'react';
 import styled from 'styled-components';
 import { Header } from './components/Header';
+import { useCalendarContext } from './context/CalendarContext';
 import { getCalendarGridDays } from './utils';
 
 const Grid = styled.div`
@@ -39,34 +39,35 @@ const DayNamesRow = styled.div`
 const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export const Calendar = () => {
+  const { currentMonth, currentYear, setCurrentMonth, setCurrentYear } =
+    useCalendarContext();
+
   const now = new Date();
-  const [month, setMonth] = useState(now.getMonth());
-  const [year, setYear] = useState(now.getFullYear());
   const today = now.toISOString().split('T')[0];
-  const days = getCalendarGridDays(year, month);
+  const days = getCalendarGridDays(currentMonth, currentYear);
 
   const handleMonthChange = (direction: 'next' | 'prev') => {
-    let newMonth = month;
-    let newYear = year;
+    let newMonth = currentMonth;
+    let newYear = currentYear;
 
     if (direction === 'next') {
-      if (month === 11) {
+      if (currentMonth === 11) {
         newMonth = 0;
-        newYear = year + 1;
+        newYear = currentYear + 1;
       } else {
-        newMonth = month + 1;
+        newMonth = currentMonth + 1;
       }
     } else {
-      if (month === 0) {
+      if (currentMonth === 0) {
         newMonth = 11;
-        newYear = year - 1;
+        newYear = currentYear - 1;
       } else {
-        newMonth = month - 1;
+        newMonth = currentMonth - 1;
       }
     }
 
-    setMonth(newMonth);
-    setYear(newYear);
+    setCurrentMonth(newMonth);
+    setCurrentYear(newYear);
   };
 
   const handleSearch = () => {
@@ -76,8 +77,8 @@ export const Calendar = () => {
   return (
     <div>
       <Header
-        month={month}
-        year={year}
+        month={currentMonth}
+        year={currentYear}
         onPrev={() => handleMonthChange('prev')}
         onNext={() => handleMonthChange('next')}
         onSearch={handleSearch}
