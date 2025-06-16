@@ -1,19 +1,21 @@
 // context/CalendarContext.tsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import type { PublicHoliday, Country } from '../types';
+import { fetchAvailableCountries } from '../api/countries';
+import { fetchPublicHolidays } from '../api/holidays';
+import type { Country, CountryHolidayMap } from '../types';
 
 export interface CalendarContextType {
   currentMonth: number;
   currentYear: number;
   currentCountryCode: string;
   availableCountries: Country[];
-  holidayData: Record<number, PublicHoliday[]>;
+  holidayData: CountryHolidayMap;
 
   setCurrentMonth: (month: number) => void;
   setCurrentYear: (year: number) => void;
   setCurrentCountryCode: (code: string) => void;
   setAvailableCountries: (countries: Country[]) => void;
-  setHolidayData: (year: number, data: PublicHoliday[]) => void;
+  setHolidayData: (data: CountryHolidayMap) => void;
 }
 
 const CalendarContext = createContext<CalendarContextType | undefined>(
@@ -35,20 +37,36 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({
   const [availableCountries, setAvailableCountries] = useState<Country[]>([
     initialCountry,
   ]);
-  const [holidayData, setHolidayDataState] = useState<
-    Record<number, PublicHoliday[]>
-  >({});
+  const [holidayData, setHolidayDataState] = useState<CountryHolidayMap>({});
+
+  const setHolidayData = async () => {
+    if (holidayData[currentCountryCode]?.[currentYear]) return;
+
+    try {
+      const parsedData = await fetchPublicHolidays(
+        currentYear,
+        currentCountryCode,
+      );
+      setHolidayDataState((prev) => ({
+        ...prev,
+        [currentCountryCode]: {
+          ...prev[currentCountryCode],
+          [currentYear]: parsedData,
+        },
+      }));
+    } catch (error) {
+      console.error('Error fetching holiday data:', error);
+    }
+  };
 
   useEffect(() => {
-    fetch('https://date.nager.at/api/v3/AvailableCountries')
-      .then((res) => res.json())
-      .then((data) => setAvailableCountries(data))
-      .catch(console.error);
+    fetchAvailableCountries().then(setAvailableCountries).catch(console.error);
   }, []);
 
-  const setHolidayData = (year: number, data: PublicHoliday[]) => {
-    setHolidayDataState((prev) => ({ ...prev, [year]: data }));
-  };
+  useEffect(() => {
+    if (!currentCountryCode || !currentYear) return;
+    setHolidayData();
+  }, [currentYear, currentCountryCode]);
 
   return (
     <CalendarContext.Provider
