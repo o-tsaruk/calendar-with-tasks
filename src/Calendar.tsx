@@ -38,8 +38,7 @@ const DayNamesRow = styled.div`
 const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export const Calendar = () => {
-  const { currentMonth, currentYear, setCurrentMonth, setCurrentYear } =
-    useCalendarContext();
+  const { currentMonth, currentYear, setCurrentDate } = useCalendarContext();
 
   const now = new Date();
   const today = now.toISOString().split('T')[0];
@@ -65,8 +64,7 @@ export const Calendar = () => {
       }
     }
 
-    setCurrentMonth(newMonth);
-    setCurrentYear(newYear);
+    setCurrentDate(newMonth, newYear);
   };
 
   const handleSearch = () => {

@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { CountrySelect } from './CountrySelect';
 
 const HeaderWrapper = styled.header`
   position: relative;
@@ -80,6 +81,7 @@ export const Header: React.FC<HeaderProps> = ({
         <ArrowButton onClick={onNext}>
           <img src='/arrow.svg' alt='Next Month' />
         </ArrowButton>
+        <CountrySelect />
       </NavSection>
       <Title>
         {monthName} {year}

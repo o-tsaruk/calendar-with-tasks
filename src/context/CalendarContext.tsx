@@ -1,4 +1,3 @@
-// context/CalendarContext.tsx
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { fetchAvailableCountries } from '../api/countries';
 import { fetchPublicHolidays } from '../api/holidays';
@@ -7,13 +6,12 @@ import type { Country, CountryHolidayMap } from '../types';
 export interface CalendarContextType {
   currentMonth: number;
   currentYear: number;
-  currentCountryCode: string;
+  currentCountry: string;
   availableCountries: Country[];
   holidayData: CountryHolidayMap;
 
-  setCurrentMonth: (month: number) => void;
-  setCurrentYear: (year: number) => void;
-  setCurrentCountryCode: (code: string) => void;
+  setCurrentDate: (month: number, year: number) => void;
+  setCurrentCountry: (code: string) => void;
   setAvailableCountries: (countries: Country[]) => void;
   setHolidayData: (data: CountryHolidayMap) => void;
 }
@@ -33,24 +31,26 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({
 
   const [currentMonth, setCurrentMonth] = useState<number>(now.getMonth());
   const [currentYear, setCurrentYear] = useState<number>(now.getFullYear());
-  const [currentCountryCode, setCurrentCountryCode] = useState<string>('UA');
+  const [currentCountry, setCurrentCountry] = useState<string>('UA');
   const [availableCountries, setAvailableCountries] = useState<Country[]>([
     initialCountry,
   ]);
   const [holidayData, setHolidayDataState] = useState<CountryHolidayMap>({});
 
+  const setCurrentDate = (month: number, year: number) => {
+    setCurrentMonth(month);
+    setCurrentYear(year);
+  };
+
   const setHolidayData = async () => {
-    if (holidayData[currentCountryCode]?.[currentYear]) return;
+    if (holidayData[currentCountry]?.[currentYear]) return;
 
     try {
-      const parsedData = await fetchPublicHolidays(
-        currentYear,
-        currentCountryCode,
-      );
+      const parsedData = await fetchPublicHolidays(currentYear, currentCountry);
       setHolidayDataState((prev) => ({
         ...prev,
-        [currentCountryCode]: {
-          ...prev[currentCountryCode],
+        [currentCountry]: {
+          ...prev[currentCountry],
           [currentYear]: parsedData,
         },
       }));
@@ -64,21 +64,20 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({
   }, []);
 
   useEffect(() => {
-    if (!currentCountryCode || !currentYear) return;
+    if (!currentCountry || !currentYear) return;
     setHolidayData();
-  }, [currentYear, currentCountryCode]);
+  }, [currentYear, currentCountry]);
 
   return (
     <CalendarContext.Provider
       value={{
         currentMonth,
         currentYear,
-        currentCountryCode,
+        currentCountry,
         availableCountries,
         holidayData,
-        setCurrentMonth,
-        setCurrentYear,
-        setCurrentCountryCode,
+        setCurrentDate,
+        setCurrentCountry,
         setAvailableCountries,
         setHolidayData,
       }}
