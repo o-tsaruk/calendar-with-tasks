@@ -1,7 +1,12 @@
 import { Calendar } from './Calendar';
+import { CalendarProvider } from './context/CalendarContext';
 
 function App() {
-  return <Calendar />;
+  return (
+    <CalendarProvider>
+      <Calendar />
+    </CalendarProvider>
+  );
 }
 
 export default App;
