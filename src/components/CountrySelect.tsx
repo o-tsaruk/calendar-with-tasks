@@ -1,5 +1,8 @@
+import { useState, useEffect } from 'react';
 import styled from 'styled-components';
+import { fetchAvailableCountries } from '../api/countries';
 import { useCalendarContext } from '../context/CalendarContext';
+import type { Country } from '../types';
 
 const Select = styled.select`
   padding: 0.5rem 0.75rem;
@@ -9,9 +12,20 @@ const Select = styled.select`
   background: #fff;
 `;
 
+const initialCountry = {
+  countryCode: 'UA',
+  name: 'Ukraine',
+};
+
 export const CountrySelect = () => {
-  const { availableCountries, currentCountry, setCurrentCountry } =
-    useCalendarContext();
+  const [availableCountries, setAvailableCountries] = useState<Country[]>([
+    initialCountry,
+  ]);
+  const { currentCountry, setCurrentCountry } = useCalendarContext();
+
+  useEffect(() => {
+    fetchAvailableCountries().then(setAvailableCountries).catch(console.error);
+  }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setCurrentCountry(e.target.value);

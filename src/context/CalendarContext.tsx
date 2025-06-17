@@ -1,19 +1,18 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { fetchAvailableCountries } from '../api/countries';
 import { fetchPublicHolidays } from '../api/holidays';
-import type { Country, CountryHolidayMap } from '../types';
+import type { CountryHolidayMap, Task } from '../types';
 
 export interface CalendarContextType {
   currentMonth: number;
   currentYear: number;
   currentCountry: string;
-  availableCountries: Country[];
   holidayData: CountryHolidayMap;
+  tasks: Task[];
 
   setCurrentDate: (month: number, year: number) => void;
   setCurrentCountry: (code: string) => void;
-  setAvailableCountries: (countries: Country[]) => void;
   setHolidayData: (data: CountryHolidayMap) => void;
+  setTasks: (tasks: Task[]) => void;
 }
 
 const CalendarContext = createContext<CalendarContextType | undefined>(
@@ -24,18 +23,11 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const now = new Date();
-  const initialCountry = {
-    countryCode: 'UA',
-    name: 'Ukraine',
-  };
-
   const [currentMonth, setCurrentMonth] = useState<number>(now.getMonth());
   const [currentYear, setCurrentYear] = useState<number>(now.getFullYear());
   const [currentCountry, setCurrentCountry] = useState<string>('UA');
-  const [availableCountries, setAvailableCountries] = useState<Country[]>([
-    initialCountry,
-  ]);
   const [holidayData, setHolidayDataState] = useState<CountryHolidayMap>({});
+  const [tasks, setTasks] = useState<Task[]>([]);
 
   const setCurrentDate = (month: number, year: number) => {
     setCurrentMonth(month);
@@ -60,10 +52,6 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   useEffect(() => {
-    fetchAvailableCountries().then(setAvailableCountries).catch(console.error);
-  }, []);
-
-  useEffect(() => {
     if (!currentCountry || !currentYear) return;
     setHolidayData();
   }, [currentYear, currentCountry]);
@@ -74,12 +62,12 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({
         currentMonth,
         currentYear,
         currentCountry,
-        availableCountries,
         holidayData,
+        tasks,
         setCurrentDate,
         setCurrentCountry,
-        setAvailableCountries,
         setHolidayData,
+        setTasks,
       }}
     >
       {children}
