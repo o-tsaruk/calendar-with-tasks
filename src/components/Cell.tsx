@@ -88,17 +88,6 @@ const TaskItem = styled.li<{ expanded: boolean }>`
   text-overflow: ${({ expanded }) => (expanded ? 'unset' : 'ellipsis')};
 `;
 
-interface CellProps {
-  day: {
-    date: string;
-    dayOfWeek: number;
-    dayOfMonth: number;
-    isOutside: boolean;
-  };
-  today: string;
-  todaysTasks: Task[];
-}
-
 type DropData = {
   task: Task;
   from: string;
@@ -137,13 +126,27 @@ const handleTaskDrop = (
   }
 };
 
+interface CellProps {
+  day: {
+    date: string;
+    dayOfWeek: number;
+    dayOfMonth: number;
+    isOutside: boolean;
+  };
+  today: string;
+  todaysTasks: Task[];
+}
+
 export const Cell = ({ day, today, todaysTasks }: CellProps) => {
   const { tasks, setTasks } = useCalendarContext();
   const [isAdding, setIsAdding] = useState(false);
   const [draft, setDraft] = useState('');
+
   const [expandedTaskIndex, setExpandedTaskIndex] = useState<number | null>(
     null,
   );
+  const [editingIndex, setEditingIndex] = useState<number | null>(null);
+  const [editingText, setEditingText] = useState('');
 
   const handleToggle = (index: number) => {
     setExpandedTaskIndex((prev) => (prev === index ? null : index));
@@ -156,6 +159,27 @@ export const Cell = ({ day, today, todaysTasks }: CellProps) => {
     }
     setDraft('');
     setIsAdding(false);
+  };
+
+  const handleTaskEdit = (index: number) => {
+    const trimmed = editingText.trim();
+
+    if (trimmed.length === 0) {
+      setEditingIndex(null);
+      setEditingText('');
+      return;
+    }
+
+    const task = todaysTasks[index];
+    const updatedTask = { ...task, text: trimmed };
+
+    const updatedTodays = [...todaysTasks];
+    updatedTodays[index] = updatedTask;
+
+    const otherTasks = tasks.filter((t) => t.date !== day.date);
+    setTasks([...otherTasks, ...updatedTodays]);
+
+    setEditingIndex(null);
   };
 
   return (
@@ -185,10 +209,34 @@ export const Cell = ({ day, today, todaysTasks }: CellProps) => {
               handleTaskDrop(e, index, day.date, tasks, todaysTasks, setTasks);
             }}
             expanded={expandedTaskIndex === index}
-            onClick={() => handleToggle(index)}
+            onClick={() => {
+              handleToggle(index);
+              setEditingIndex(index);
+              setEditingText(task.text);
+            }}
             title={task.text}
           >
-            {task.text}
+            {editingIndex === index ? (
+              <TaskInput
+                autoFocus
+                value={editingText}
+                onChange={(e) => setEditingText(e.target.value)}
+                onBlur={() => {
+                  handleTaskEdit(index);
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleTaskEdit(index);
+                  }
+                  if (e.key === 'Escape') {
+                    setEditingIndex(null);
+                  }
+                }}
+              />
+            ) : (
+              task.text
+            )}
           </TaskItem>
         ))}
       </TaskList>
