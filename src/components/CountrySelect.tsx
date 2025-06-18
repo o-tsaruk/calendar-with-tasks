@@ -5,10 +5,10 @@ import { useCalendarContext } from '../context/CalendarContext';
 import type { Country } from '../types';
 
 const Select = styled.select`
-  padding: 0.5rem 0.75rem;
-  font-size: 1rem;
+  padding: 8px 12px;
+  font-size: 16px;
   border-radius: 6px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-control);
   background: #fff;
 `;
 

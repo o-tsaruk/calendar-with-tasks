@@ -11,8 +11,16 @@
 :root {
   --bg-primary: #fffefa;
   --bg-secondary: #eeece7;
+  --bg-task: #ffeec4;
+
   --text-primary: #0a0a08;
+  --text-secondary: #aaa;
+
   --border-primary: #868375;
+  --border-secondary: #ddd;
+  --border-active: #0070f3;
+  --border-control: #ccc;
+  --border-task: #c07d00;
 }
 
 html {
