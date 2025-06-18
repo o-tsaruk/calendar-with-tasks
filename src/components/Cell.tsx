@@ -6,7 +6,7 @@ import type { Task } from '../types';
 const StyledCell = styled.div<{ $isToday?: boolean; $isOutside?: boolean }>`
   position: relative;
   border: 1px solid var(--border-secondary);
-  padding: 6px 6px 18px 6px;
+  padding: 4px 6px 24px 6px;
   min-height: 140px;
   font-size: 12px;
   color: ${({ $isOutside }) =>
@@ -67,13 +67,14 @@ const TaskInput = styled.textarea`
 `;
 
 const TaskList = styled.ul`
-  margin: 4px 0 0;
+  margin: 2px 0;
   padding: 0;
   list-style: none;
   width: 100%;
 `;
 
 const TaskItem = styled.li<{ expanded: boolean }>`
+  position: relative;
   font-size: 12px;
   background: var(--bg-task);
   border: 1px solid var(--border-task);
@@ -84,8 +85,38 @@ const TaskItem = styled.li<{ expanded: boolean }>`
   transition: all 0.2s ease;
 
   overflow: hidden;
-  white-space: ${({ expanded }) => (expanded ? 'normal' : 'nowrap')};
-  text-overflow: ${({ expanded }) => (expanded ? 'unset' : 'ellipsis')};
+
+  &:hover .remove-task-button {
+    display: inline-block;
+  }
+`;
+
+const RemoveButton = styled.button`
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  display: none;
+  margin-left: 8px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-control);
+  border-radius: 3px;
+  width: 18px;
+  height: 18px;
+  font-weight: bold;
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  text-align: center;
+  user-select: none;
+  transition:
+    background-color 0.2s,
+    color 0.2s;
+
+  &:hover {
+    background-color: darkred;
+    color: white;
+  }
 `;
 
 type DropData = {
@@ -161,6 +192,16 @@ export const Cell = ({ day, today, todaysTasks }: CellProps) => {
     setIsAdding(false);
   };
 
+  const handleRemove = (index: number) => {
+    const taskToRemove = todaysTasks[index];
+    const filteredTasks = tasks.filter(
+      (t) => !(t.date === day.date && t.text === taskToRemove.text),
+    );
+    setTasks(filteredTasks);
+    setExpandedTaskIndex(null);
+    setEditingIndex(null);
+  };
+
   const handleTaskEdit = (index: number) => {
     const trimmed = editingText.trim();
 
@@ -181,6 +222,42 @@ export const Cell = ({ day, today, todaysTasks }: CellProps) => {
 
     setEditingIndex(null);
   };
+
+  const TaskItemContent = (props: { index: number; text: string }) =>
+    editingIndex === props.index ? (
+      <TaskInput
+        autoFocus
+        value={editingText}
+        onChange={(e) => setEditingText(e.target.value)}
+        onBlur={() => {
+          handleTaskEdit(props.index);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            handleTaskEdit(props.index);
+          }
+          if (e.key === 'Escape') {
+            setEditingIndex(null);
+          }
+        }}
+      />
+    ) : (
+      <>
+        {props.text}
+        <RemoveButton
+          className='remove-task-button'
+          onClick={(e) => {
+            e.stopPropagation();
+            handleRemove(props.index);
+          }}
+          aria-label='Delete task'
+          title='Delete task'
+        >
+          ×
+        </RemoveButton>
+      </>
+    );
 
   return (
     <StyledCell
@@ -216,27 +293,7 @@ export const Cell = ({ day, today, todaysTasks }: CellProps) => {
             }}
             title={task.text}
           >
-            {editingIndex === index ? (
-              <TaskInput
-                autoFocus
-                value={editingText}
-                onChange={(e) => setEditingText(e.target.value)}
-                onBlur={() => {
-                  handleTaskEdit(index);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    handleTaskEdit(index);
-                  }
-                  if (e.key === 'Escape') {
-                    setEditingIndex(null);
-                  }
-                }}
-              />
-            ) : (
-              task.text
-            )}
+            <TaskItemContent index={index} text={task.text} />
           </TaskItem>
         ))}
       </TaskList>
