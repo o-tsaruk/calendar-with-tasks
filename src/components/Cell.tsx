@@ -6,7 +6,7 @@ import type { Task } from '../types';
 const StyledCell = styled.div<{ $isToday?: boolean; $isOutside?: boolean }>`
   position: relative;
   border: 1px solid var(--border-secondary);
-  padding: 6px;
+  padding: 6px 6px 18px 6px;
   min-height: 140px;
   font-size: 12px;
   color: ${({ $isOutside }) =>
@@ -22,12 +22,15 @@ const StyledCell = styled.div<{ $isToday?: boolean; $isOutside?: boolean }>`
     $isToday &&
     `
     border: 2px solid var(--border-active);
-    font-weight: bold;
   `}
 
   &:hover button.add-task-button {
     opacity: 1;
     pointer-events: auto;
+  }
+
+  &.drag-over {
+    border: 2px dashed var(--border-active);
   }
 `;
 
@@ -41,6 +44,7 @@ const AddTaskButton = styled.button`
   font-size: 12px;
   background: var(--bg-secondary);
   border: none;
+  border-radius: 4px;
   cursor: pointer;
 
   opacity: 0;
@@ -84,6 +88,11 @@ const TaskItem = styled.li<{ expanded: boolean }>`
   text-overflow: ${({ expanded }) => (expanded ? 'unset' : 'ellipsis')};
 `;
 
+interface DropData {
+  task: Task;
+  from: string;
+}
+
 interface CellProps {
   day: {
     date: string;
@@ -94,6 +103,35 @@ interface CellProps {
   today: string;
   todaysTasks: Task[];
 }
+
+const handleDrop = (
+  e: React.DragEvent<HTMLDivElement>,
+  dayDate: string,
+  tasks: Task[],
+  setTasks: (tasks: Task[]) => void,
+) => {
+  e.preventDefault();
+
+  const data = e.dataTransfer.getData('text/plain');
+  if (!data) return;
+
+  let dropData: DropData;
+  try {
+    dropData = JSON.parse(data);
+  } catch {
+    return;
+  }
+
+  const { task, from } = dropData;
+
+  if (from === dayDate) return;
+
+  const updatedTasks = tasks
+    .filter((t) => !(t.date === from && t.text === task.text))
+    .concat({ ...task, date: dayDate });
+
+  setTasks(updatedTasks);
+};
 
 export const Cell = ({ day, today, todaysTasks }: CellProps) => {
   const { tasks, setTasks } = useCalendarContext();
@@ -117,13 +155,25 @@ export const Cell = ({ day, today, todaysTasks }: CellProps) => {
   };
 
   return (
-    <StyledCell $isToday={day.date === today} $isOutside={day.isOutside}>
+    <StyledCell
+      $isToday={day.date === today}
+      $isOutside={day.isOutside}
+      onDragOver={(e) => e.preventDefault()}
+      onDrop={(e) => handleDrop(e, day.date, tasks, setTasks)}
+    >
       <div>{day.dayOfMonth}</div>
 
       <TaskList>
         {todaysTasks.map((task, index) => (
           <TaskItem
             key={index}
+            draggable
+            onDragStart={(e) => {
+              e.dataTransfer.setData(
+                'text/plain',
+                JSON.stringify({ task, from: day.date }),
+              );
+            }}
             expanded={expandedTaskIndex === index}
             onClick={() => handleToggle(index)}
             title={task.text}
