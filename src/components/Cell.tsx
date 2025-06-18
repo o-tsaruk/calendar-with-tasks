@@ -5,24 +5,21 @@ import type { Task } from '../types';
 
 const StyledCell = styled.div<{ $isToday?: boolean; $isOutside?: boolean }>`
   position: relative;
-  border: 1px solid var(--border-secondary);
+  box-sizing: border-box;
+  overflow: hidden;
   padding: 4px 6px 24px 6px;
   min-height: 140px;
-  font-size: 12px;
-  color: ${({ $isOutside }) =>
-    $isOutside ? 'var(--text-secondary)' : 'var(--text-primary)'};
+  border: ${({ $isToday }) =>
+    $isToday
+      ? '2px solid var(--border-active)'
+      : '1px solid var(--border-secondary)'};
   background-color: ${({ $isOutside }) =>
     $isOutside ? 'var(--bg-secondary)' : 'var(--bg-primary)'};
   border-radius: 6px;
 
-  box-sizing: border-box;
-  overflow: hidden;
-
-  ${({ $isToday }) =>
-    $isToday &&
-    `
-    border: 2px solid var(--border-active);
-  `}
+  font-size: 12px;
+  color: ${({ $isOutside }) =>
+    $isOutside ? 'var(--text-secondary)' : 'var(--text-primary)'};
 
   &:hover button.add-task-button {
     opacity: 1;
@@ -58,33 +55,32 @@ const AddTaskButton = styled.button`
 
 const TaskInput = styled.textarea`
   width: 100%;
-  font-size: 12px;
+  padding: 4px;
+  margin-top: 4px;
   border-radius: 4px;
   border: 1px solid var(--border-control);
-  padding: 4px;
+  font-size: 12px;
   resize: none;
-  margin-top: 4px;
 `;
 
 const TaskList = styled.ul`
+  width: 100%;
   margin: 2px 0;
   padding: 0;
   list-style: none;
-  width: 100%;
 `;
 
 const TaskItem = styled.li<{ expanded: boolean }>`
   position: relative;
-  font-size: 12px;
+  overflow: hidden;
+  padding: 2px 4px;
+  margin-bottom: 2px;
   background: var(--bg-task);
   border: 1px solid var(--border-task);
   border-radius: 4px;
-  padding: 2px 4px;
-  margin-bottom: 2px;
-  cursor: pointer;
+  font-size: 12px;
   transition: all 0.2s ease;
-
-  overflow: hidden;
+  cursor: pointer;
 
   &:hover .remove-task-button {
     display: inline-block;
@@ -92,26 +88,27 @@ const TaskItem = styled.li<{ expanded: boolean }>`
 `;
 
 const RemoveButton = styled.button`
+  display: none;
   position: absolute;
   top: 2px;
   right: 2px;
-  display: none;
+  width: 18px;
+  height: 18px;
+  padding: 0;
   margin-left: 8px;
   background: var(--bg-secondary);
   border: 1px solid var(--border-control);
   border-radius: 3px;
-  width: 18px;
-  height: 18px;
-  font-weight: bold;
-  color: var(--text-primary);
-  cursor: pointer;
-  padding: 0;
-  line-height: 1;
-  text-align: center;
-  user-select: none;
   transition:
     background-color 0.2s,
     color 0.2s;
+  cursor: pointer;
+
+  font-weight: bold;
+  color: var(--text-primary);
+  line-height: 1;
+  text-align: center;
+  user-select: none;
 
   &:hover {
     background-color: darkred;
@@ -172,12 +169,12 @@ export const Cell = ({ day, today, todaysTasks }: CellProps) => {
   const { tasks, setTasks } = useCalendarContext();
   const [isAdding, setIsAdding] = useState(false);
   const [draft, setDraft] = useState('');
+  const [editingText, setEditingText] = useState('');
 
   const [expandedTaskIndex, setExpandedTaskIndex] = useState<number | null>(
     null,
   );
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
-  const [editingText, setEditingText] = useState('');
 
   const handleToggle = (index: number) => {
     setExpandedTaskIndex((prev) => (prev === index ? null : index));
@@ -192,17 +189,7 @@ export const Cell = ({ day, today, todaysTasks }: CellProps) => {
     setIsAdding(false);
   };
 
-  const handleRemove = (index: number) => {
-    const taskToRemove = todaysTasks[index];
-    const filteredTasks = tasks.filter(
-      (t) => !(t.date === day.date && t.text === taskToRemove.text),
-    );
-    setTasks(filteredTasks);
-    setExpandedTaskIndex(null);
-    setEditingIndex(null);
-  };
-
-  const handleTaskEdit = (index: number) => {
+  const handleEdit = (index: number) => {
     const trimmed = editingText.trim();
 
     if (trimmed.length === 0) {
@@ -223,6 +210,16 @@ export const Cell = ({ day, today, todaysTasks }: CellProps) => {
     setEditingIndex(null);
   };
 
+  const handleRemove = (index: number) => {
+    const taskToRemove = todaysTasks[index];
+    const filteredTasks = tasks.filter(
+      (t) => !(t.date === day.date && t.text === taskToRemove.text),
+    );
+    setTasks(filteredTasks);
+    setExpandedTaskIndex(null);
+    setEditingIndex(null);
+  };
+
   const TaskItemContent = (props: { index: number; text: string }) =>
     editingIndex === props.index ? (
       <TaskInput
@@ -230,12 +227,12 @@ export const Cell = ({ day, today, todaysTasks }: CellProps) => {
         value={editingText}
         onChange={(e) => setEditingText(e.target.value)}
         onBlur={() => {
-          handleTaskEdit(props.index);
+          handleEdit(props.index);
         }}
         onKeyDown={(e) => {
           if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
-            handleTaskEdit(props.index);
+            handleEdit(props.index);
           }
           if (e.key === 'Escape') {
             setEditingIndex(null);
