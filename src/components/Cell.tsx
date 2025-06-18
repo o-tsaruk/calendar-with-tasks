@@ -49,7 +49,7 @@ const AddTaskButton = styled.button`
   transition: opacity 0.4s ease;
 
   &:hover {
-    filter: brightness(105%);
+    filter: brightness(95%);
   }
 `;
 
@@ -78,9 +78,11 @@ const TaskItem = styled.li<{ expanded: boolean }>`
   background: var(--bg-task);
   border: 1px solid var(--border-task);
   border-radius: 4px;
-  font-size: 12px;
   transition: all 0.2s ease;
   cursor: pointer;
+
+  font-size: 12px;
+  color: var(--text-primary);
 
   &:hover .remove-task-button {
     display: inline-block;
@@ -111,7 +113,7 @@ const RemoveButton = styled.button`
   user-select: none;
 
   &:hover {
-    background-color: darkred;
+    background-color: indianred;
     color: white;
   }
 `;
