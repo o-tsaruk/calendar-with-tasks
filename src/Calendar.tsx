@@ -1,6 +1,9 @@
+import { useMemo } from 'react';
 import styled from 'styled-components';
+import { Cell } from './components/Cell';
 import { Header } from './components/Header';
 import { useCalendarContext } from './context/CalendarContext';
+import type { Task } from './types';
 import { getCalendarGridDays } from './utils';
 
 const Grid = styled.div`
@@ -8,23 +11,6 @@ const Grid = styled.div`
   grid-template-columns: repeat(7, 1fr);
   gap: 4px;
   padding: 8px;
-`;
-
-const Cell = styled.div<{ $isToday?: boolean; $isOutside?: boolean }>`
-  border: 1px solid #ddd;
-  padding: 6px;
-  min-height: 130px;
-  font-size: 12px;
-  color: ${({ $isOutside }) => ($isOutside ? '#aaa' : 'black')};
-  background-color: ${({ $isOutside }) => ($isOutside ? '#fafafa' : 'white')};
-  border-radius: 6px;
-
-  ${({ $isToday }) =>
-    $isToday &&
-    `
-    border: 2px solid #0070f3;
-    font-weight: bold;
-  `}
 `;
 
 const DayNamesRow = styled.div`
@@ -38,12 +24,20 @@ const DayNamesRow = styled.div`
 const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export const Calendar = () => {
-  const { currentMonth, currentYear, setCurrentMonth, setCurrentYear } =
+  const { currentMonth, currentYear, setCurrentDate, tasks } =
     useCalendarContext();
-
   const now = new Date();
   const today = now.toISOString().split('T')[0];
   const days = getCalendarGridDays(currentMonth, currentYear);
+
+  const tasksByDate = useMemo(() => {
+    const map: Record<string, Task[]> = {};
+    for (const task of tasks) {
+      if (!map[task.date]) map[task.date] = [];
+      map[task.date].push(task);
+    }
+    return map;
+  }, [tasks]);
 
   const handleMonthChange = (direction: 'next' | 'prev') => {
     let newMonth = currentMonth;
@@ -65,8 +59,7 @@ export const Calendar = () => {
       }
     }
 
-    setCurrentMonth(newMonth);
-    setCurrentYear(newYear);
+    setCurrentDate(newMonth, newYear);
   };
 
   const handleSearch = () => {
@@ -88,15 +81,17 @@ export const Calendar = () => {
         ))}
       </DayNamesRow>
       <Grid>
-        {days.map((day) => (
-          <Cell
-            key={day.date}
-            $isToday={day.date === today}
-            $isOutside={day.isOutside}
-          >
-            <div>{day.dayOfMonth}</div>
-          </Cell>
-        ))}
+        {days.map((day) => {
+          const todaysTasks = tasksByDate[day.date] || [];
+          return (
+            <Cell
+              key={day.date}
+              day={day}
+              today={today}
+              todaysTasks={todaysTasks}
+            />
+          );
+        })}
       </Grid>
     </div>
   );

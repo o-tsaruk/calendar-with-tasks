@@ -1,5 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
+import { CountrySelect } from './CountrySelect';
 
 const HeaderWrapper = styled.header`
   position: relative;
@@ -8,8 +9,8 @@ const HeaderWrapper = styled.header`
   align-items: center;
   padding: 14px;
   margin-bottom: 20px;
-  border-bottom: 1px solid #ddd;
-  background-color: #fff;
+  border-bottom: 1px solid var(--border-secondary);
+  background-color: var(--bg-primary);
 `;
 
 const NavSection = styled.div`
@@ -46,10 +47,10 @@ const Title = styled.h2`
 `;
 
 const SearchInput = styled.input`
-  padding: 0.5rem 0.75rem;
-  font-size: 1rem;
+  padding: 8px 12px;
+  font-size: 16px;
   border-radius: 6px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--border-control);
 `;
 
 type HeaderProps = {
@@ -80,6 +81,7 @@ export const Header: React.FC<HeaderProps> = ({
         <ArrowButton onClick={onNext}>
           <img src='/arrow.svg' alt='Next Month' />
         </ArrowButton>
+        <CountrySelect />
       </NavSection>
       <Title>
         {monthName} {year}

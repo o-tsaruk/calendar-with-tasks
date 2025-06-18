@@ -13,3 +13,8 @@ export type CountryHolidayMap = {
     [year: number]: PublicHoliday[];
   };
 };
+
+export type Task = {
+  date: string;
+  text: string;
+};
