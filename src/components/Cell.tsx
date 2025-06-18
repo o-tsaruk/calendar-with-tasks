@@ -88,11 +88,6 @@ const TaskItem = styled.li<{ expanded: boolean }>`
   text-overflow: ${({ expanded }) => (expanded ? 'unset' : 'ellipsis')};
 `;
 
-interface DropData {
-  task: Task;
-  from: string;
-}
-
 interface CellProps {
   day: {
     date: string;
@@ -104,33 +99,42 @@ interface CellProps {
   todaysTasks: Task[];
 }
 
-const handleDrop = (
-  e: React.DragEvent<HTMLDivElement>,
+type DropData = {
+  task: Task;
+  from: string;
+  fromIndex: number;
+};
+
+const handleTaskDrop = (
+  e: React.DragEvent<HTMLElement>,
+  dropIndex: number | null,
   dayDate: string,
   tasks: Task[],
+  todaysTasks: Task[],
   setTasks: (tasks: Task[]) => void,
 ) => {
   e.preventDefault();
 
-  const data = e.dataTransfer.getData('text/plain');
+  const data = e.dataTransfer.getData('application/json');
   if (!data) return;
 
-  let dropData: DropData;
-  try {
-    dropData = JSON.parse(data);
-  } catch {
-    return;
+  const { task, from, fromIndex }: DropData = JSON.parse(data);
+
+  // Reorder in the same cell, or move to another
+  if (from === dayDate && dropIndex !== null) {
+    const updated = [...todaysTasks];
+    const [moved] = updated.splice(fromIndex, 1);
+    updated.splice(dropIndex, 0, moved);
+
+    const otherTasks = tasks.filter((t) => t.date !== dayDate);
+    setTasks([...otherTasks, ...updated]);
+  } else if (from !== dayDate) {
+    const updated = [
+      ...tasks.filter((t) => !(t.date === from && t.text === task.text)),
+      { ...task, date: dayDate },
+    ];
+    setTasks(updated);
   }
-
-  const { task, from } = dropData;
-
-  if (from === dayDate) return;
-
-  const updatedTasks = tasks
-    .filter((t) => !(t.date === from && t.text === task.text))
-    .concat({ ...task, date: dayDate });
-
-  setTasks(updatedTasks);
 };
 
 export const Cell = ({ day, today, todaysTasks }: CellProps) => {
@@ -159,7 +163,9 @@ export const Cell = ({ day, today, todaysTasks }: CellProps) => {
       $isToday={day.date === today}
       $isOutside={day.isOutside}
       onDragOver={(e) => e.preventDefault()}
-      onDrop={(e) => handleDrop(e, day.date, tasks, setTasks)}
+      onDrop={(e) =>
+        handleTaskDrop(e, null, day.date, tasks, todaysTasks, setTasks)
+      }
     >
       <div>{day.dayOfMonth}</div>
 
@@ -170,9 +176,13 @@ export const Cell = ({ day, today, todaysTasks }: CellProps) => {
             draggable
             onDragStart={(e) => {
               e.dataTransfer.setData(
-                'text/plain',
-                JSON.stringify({ task, from: day.date }),
+                'application/json',
+                JSON.stringify({ task, from: day.date, fromIndex: index }),
               );
+            }}
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={(e) => {
+              handleTaskDrop(e, index, day.date, tasks, todaysTasks, setTasks);
             }}
             expanded={expandedTaskIndex === index}
             onClick={() => handleToggle(index)}
