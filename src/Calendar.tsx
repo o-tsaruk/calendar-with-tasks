@@ -95,7 +95,7 @@ export const Calendar = () => {
   };
 
   return (
-    <div>
+    <div style={{minWidth: 900}}>
       <Header
         month={currentMonth}
         year={currentYear}
