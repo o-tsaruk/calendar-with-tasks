@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Cell } from './components/Cell';
 import { Header } from './components/Header';
@@ -29,6 +29,7 @@ export const Calendar = () => {
   const now = new Date();
   const today = now.toISOString().split('T')[0];
   const days = getCalendarGridDays(currentMonth, currentYear);
+  const [searchText, setSearchText] = useState('');
 
   const tasksByDate = useMemo(() => {
     const map: Record<string, Task[]> = {};
@@ -36,8 +37,21 @@ export const Calendar = () => {
       if (!map[task.date]) map[task.date] = [];
       map[task.date].push(task);
     }
+
+    if (searchText.trim()) {
+      for (const date in map) {
+        map[date] = map[date].filter((task) =>
+          task.text.toLowerCase().includes(searchText),
+        );
+      }
+    }
+
     return map;
-  }, [tasks]);
+  }, [tasks, searchText]);
+
+  const handleSearch = (value: string) => {
+    setSearchText(value.toLowerCase());
+  };
 
   const handleMonthChange = (direction: 'next' | 'prev') => {
     let newMonth = currentMonth;
@@ -60,10 +74,6 @@ export const Calendar = () => {
     }
 
     setCurrentDate(newMonth, newYear);
-  };
-
-  const handleSearch = () => {
-    // todo
   };
 
   return (

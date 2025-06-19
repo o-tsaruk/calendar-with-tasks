@@ -253,7 +253,7 @@ export const Cell = ({ day, today, todaysTasks }: CellProps) => {
           aria-label='Delete task'
           title='Delete task'
         >
-          ×
+          x
         </RemoveButton>
       </>
     );

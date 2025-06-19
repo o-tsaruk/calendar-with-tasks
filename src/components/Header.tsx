@@ -1,4 +1,3 @@
-import React from 'react';
 import styled from 'styled-components';
 import { CountrySelect } from './CountrySelect';
 
@@ -22,7 +21,7 @@ const NavSection = styled.div`
 const ArrowButton = styled.button<{ $rotate?: boolean }>`
   background: var(--bg-secondary);
   border: none;
-  padding: 4px 8px;
+  padding: 4px 12px;
   border-radius: 6px;
   cursor: pointer;
 
