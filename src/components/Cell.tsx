@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 import { useCalendarContext } from '../context/CalendarContext';
-import type { Task } from '../types';
+import type { PublicHoliday, Task } from '../types';
 
 const StyledCell = styled.div<{ $isToday?: boolean; $isOutside?: boolean }>`
   position: relative;
@@ -49,7 +49,7 @@ const AddTaskButton = styled.button`
   transition: opacity 0.4s ease;
 
   &:hover {
-    filter: brightness(105%);
+    filter: brightness(95%);
   }
 `;
 
@@ -78,13 +78,29 @@ const TaskItem = styled.li<{ expanded: boolean }>`
   background: var(--bg-task);
   border: 1px solid var(--border-task);
   border-radius: 4px;
-  font-size: 12px;
   transition: all 0.2s ease;
   cursor: pointer;
+
+  font-size: 12px;
+  color: var(--text-primary);
 
   &:hover .remove-task-button {
     display: inline-block;
   }
+`;
+
+const HolidayItem = styled.li`
+  padding: 2px 4px;
+  margin-bottom: 2px;
+  background: var(--bg-holiday);
+  border-radius: 4px;
+  font-style: italic;
+  pointer-events: none;
+  user-select: none;
+
+  font-size: 13px;
+  color: var(--text-primary);
+  line-height: 130%;
 `;
 
 const RemoveButton = styled.button`
@@ -111,7 +127,7 @@ const RemoveButton = styled.button`
   user-select: none;
 
   &:hover {
-    background-color: darkred;
+    background-color: indianred;
     color: white;
   }
 `;
@@ -163,9 +179,15 @@ interface CellProps {
   };
   today: string;
   todaysTasks: Task[];
+  todaysHolidays: PublicHoliday[];
 }
 
-export const Cell = ({ day, today, todaysTasks }: CellProps) => {
+export const Cell = ({
+  day,
+  today,
+  todaysTasks,
+  todaysHolidays,
+}: CellProps) => {
   const { tasks, setTasks } = useCalendarContext();
   const [isAdding, setIsAdding] = useState(false);
   const [draft, setDraft] = useState('');
@@ -251,7 +273,7 @@ export const Cell = ({ day, today, todaysTasks }: CellProps) => {
           aria-label='Delete task'
           title='Delete task'
         >
-          ×
+          x
         </RemoveButton>
       </>
     );
@@ -268,6 +290,11 @@ export const Cell = ({ day, today, todaysTasks }: CellProps) => {
       <div>{day.dayOfMonth}</div>
 
       <TaskList>
+        {todaysHolidays.map((holiday, index) => (
+          <HolidayItem key={index} title={holiday.name}>
+            {holiday.name}
+          </HolidayItem>
+        ))}
         {todaysTasks.map((task, index) => (
           <TaskItem
             key={index}

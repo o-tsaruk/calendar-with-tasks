@@ -11,7 +11,8 @@
 :root {
   --bg-primary: #fffefa;
   --bg-secondary: #eeece7;
-  --bg-task: #ffeec4;
+  --bg-task: #dfe5ff;
+  --bg-holiday: #9bcee5ec;
 
   --text-primary: #0a0a08;
   --text-secondary: #aaa;
@@ -20,7 +21,7 @@
   --border-secondary: #ddd;
   --border-active: #0070f3;
   --border-control: #ccc;
-  --border-task: #c07d00;
+  --border-task: #0023c0;
 }
 
 html {

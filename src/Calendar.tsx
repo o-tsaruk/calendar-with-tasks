@@ -1,9 +1,9 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import styled from 'styled-components';
 import { Cell } from './components/Cell';
 import { Header } from './components/Header';
 import { useCalendarContext } from './context/CalendarContext';
-import type { Task } from './types';
+import type { PublicHoliday, Task } from './types';
 import { getCalendarGridDays } from './utils';
 
 const Grid = styled.div`
@@ -24,11 +24,18 @@ const DayNamesRow = styled.div`
 const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
 export const Calendar = () => {
-  const { currentMonth, currentYear, setCurrentDate, tasks } =
-    useCalendarContext();
+  const {
+    currentMonth,
+    currentYear,
+    currentCountry,
+    tasks,
+    holidays,
+    setCurrentDate,
+  } = useCalendarContext();
   const now = new Date();
   const today = now.toISOString().split('T')[0];
   const days = getCalendarGridDays(currentMonth, currentYear);
+  const [searchText, setSearchText] = useState('');
 
   const tasksByDate = useMemo(() => {
     const map: Record<string, Task[]> = {};
@@ -36,8 +43,33 @@ export const Calendar = () => {
       if (!map[task.date]) map[task.date] = [];
       map[task.date].push(task);
     }
+
+    if (searchText.trim()) {
+      for (const date in map) {
+        map[date] = map[date].filter((task) =>
+          task.text.toLowerCase().includes(searchText),
+        );
+      }
+    }
+
     return map;
-  }, [tasks]);
+  }, [tasks, searchText]);
+
+  const holidaysByDate = useMemo(() => {
+    const yearHolidays = holidays[currentCountry]?.[currentYear] || [];
+    const map: Record<string, PublicHoliday[]> = {};
+
+    yearHolidays.forEach((holiday) => {
+      map[holiday.date] = map[holiday.date] || [];
+      map[holiday.date].push(holiday);
+    });
+
+    return map;
+  }, [holidays, currentYear]);
+
+  const handleSearch = (value: string) => {
+    setSearchText(value.toLowerCase());
+  };
 
   const handleMonthChange = (direction: 'next' | 'prev') => {
     let newMonth = currentMonth;
@@ -62,10 +94,6 @@ export const Calendar = () => {
     setCurrentDate(newMonth, newYear);
   };
 
-  const handleSearch = () => {
-    // todo
-  };
-
   return (
     <div>
       <Header
@@ -83,12 +111,15 @@ export const Calendar = () => {
       <Grid>
         {days.map((day) => {
           const todaysTasks = tasksByDate[day.date] || [];
+          const todaysHolidays = holidaysByDate[day.date] || [];
+
           return (
             <Cell
               key={day.date}
               day={day}
               today={today}
               todaysTasks={todaysTasks}
+              todaysHolidays={todaysHolidays}
             />
           );
         })}

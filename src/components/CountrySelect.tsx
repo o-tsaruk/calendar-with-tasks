@@ -9,7 +9,12 @@ const Select = styled.select`
   font-size: 16px;
   border-radius: 6px;
   border: 1px solid var(--border-control);
-  background: #fff;
+  background: var(--bg-primary);
+
+  &:focus {
+    outline: none;
+    border-color: var(--border-control);
+  }
 `;
 
 const initialCountry = {
