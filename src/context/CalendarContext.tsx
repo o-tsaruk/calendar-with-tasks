@@ -6,12 +6,12 @@ export interface CalendarContextType {
   currentMonth: number;
   currentYear: number;
   currentCountry: string;
-  holidayData: CountryHolidayMap;
+  holidays: CountryHolidayMap;
   tasks: Task[];
 
   setCurrentDate: (month: number, year: number) => void;
   setCurrentCountry: (code: string) => void;
-  setHolidayData: (data: CountryHolidayMap) => void;
+  setHolidays: (data: CountryHolidayMap) => void;
   setTasks: (tasks: Task[]) => void;
 }
 
@@ -26,7 +26,7 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({
   const [currentMonth, setCurrentMonth] = useState<number>(now.getMonth());
   const [currentYear, setCurrentYear] = useState<number>(now.getFullYear());
   const [currentCountry, setCurrentCountry] = useState<string>('UA');
-  const [holidayData, setHolidayDataState] = useState<CountryHolidayMap>({});
+  const [holidays, setHolidaysState] = useState<CountryHolidayMap>({});
   const [tasks, setTasks] = useState<Task[]>([]);
 
   const setCurrentDate = (month: number, year: number) => {
@@ -34,12 +34,12 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({
     setCurrentYear(year);
   };
 
-  const setHolidayData = async () => {
-    if (holidayData[currentCountry]?.[currentYear]) return;
+  const setHolidays = async () => {
+    if (holidays[currentCountry]?.[currentYear]) return;
 
     try {
       const parsedData = await fetchPublicHolidays(currentYear, currentCountry);
-      setHolidayDataState((prev) => ({
+      setHolidaysState((prev) => ({
         ...prev,
         [currentCountry]: {
           ...prev[currentCountry],
@@ -53,7 +53,7 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({
 
   useEffect(() => {
     if (!currentCountry || !currentYear) return;
-    setHolidayData();
+    setHolidays();
   }, [currentYear, currentCountry]);
 
   return (
@@ -62,11 +62,11 @@ export const CalendarProvider: React.FC<{ children: React.ReactNode }> = ({
         currentMonth,
         currentYear,
         currentCountry,
-        holidayData,
+        holidays,
         tasks,
         setCurrentDate,
         setCurrentCountry,
-        setHolidayData,
+        setHolidays,
         setTasks,
       }}
     >
