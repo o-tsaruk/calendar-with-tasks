@@ -19,9 +19,9 @@ const NavSection = styled.div`
 `;
 
 const ArrowButton = styled.button<{ $rotate?: boolean }>`
-  background: var(--bg-secondary);
+  background: #d2e3f0;
   border: none;
-  padding: 4px 12px;
+  padding: 4px 10px;
   border-radius: 6px;
   cursor: pointer;
 
@@ -40,8 +40,8 @@ const Title = styled.h2`
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 500;
   margin: 0;
 `;
 
